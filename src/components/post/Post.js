@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BiDotsHorizontalRounded } from "react-icons/bi";
 import { FaRegHeart } from "react-icons/fa6";
 import { FaRegComment, FaHeart } from "react-icons/fa";
@@ -6,17 +6,18 @@ import { PiPaperPlaneTiltBold } from "react-icons/pi";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Comment from "./Comment";
 
-const Post = ({ item }) => {
+const Post = ({ item, logInUser }) => {
   const location = useLocation();
+  const inputRef = useRef(null);
   // console.log("location.pathname", );
   const navigate = useNavigate();
-  const logInUserId = "65c44c79ac67152520d0897b";
-  const [loggedInUser, setLoggedInUser] = useState(null);
+  const logInUserId = logInUser?._id;
+  const [loggedInUser, setLoggedInUser] = useState();
   const userId = loggedInUser && loggedInUser._id;
   const [liked, setLiked] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [post, setPost] = useState(item);
-  const [commentText, setCommentText] = useState();
+  const [commentText, setCommentText] = useState("");
   const [isDeleteMenuOpen, setIsDeleteMenuOpen] = useState(false);
   // console.log("post", item);
 
@@ -32,7 +33,7 @@ const Post = ({ item }) => {
       setLoggedInUser(data);
     };
     fetchUser();
-  }, []);
+  }, [logInUserId]);
 
   const likePost = async () => {
     // console.log("like function", post._id, userId);
@@ -65,7 +66,7 @@ const Post = ({ item }) => {
 
   const comment = async () => {
     const newComment = {
-      userId: logInUserId,
+      userId: logInUser?._id,
       text: commentText,
       createdAt: new Date(),
     };
@@ -126,6 +127,12 @@ const Post = ({ item }) => {
     }
   };
 
+  const focusInput = () => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
   // const handleShare = async () => {
   //   if (navigator.share) {
   //     try {
@@ -145,13 +152,13 @@ const Post = ({ item }) => {
   // };
 
   return (
-    <div className="bg-[#fff] w-max">
+    <div className="bg-[#fff]">
       {post ? (
         <div className="py-3 border-b border-b-gray-300 mb-3 ">
           <div className="relative flex justify-between items-center py-2 px-1">
             <div className="flex gap-2 items-center">
               <div className="w-9 h-9 object-contain rounded-full overflow-hidden border">
-                <img src={post.user.profilePicture} alt="img" />
+                <img src={post.user?.profilePicture} alt="img" />
               </div>
               <Link
                 className="text-sm font-semibold"
@@ -201,14 +208,10 @@ const Post = ({ item }) => {
               </div>
             )}
           </div>
-          <div className="max-w-[430px] max-h-[430px]">
-            <img
-              src={post.image}
-              alt="img"
-              className="max-w-[430px] max-h-[430px] rounded-[3px]"
-            />
+          <div className="aspect-square w-full sm:w-[430px]">
+            <img src={post.image} alt="img" className="w-full h-full" />
           </div>
-          <div className="flex justify-between items-center py-[10px] px-1">
+          <div className="flex justify-between items-center py-[10px] px-3">
             <div className="flex gap-4 items-center">
               {liked ||
               (post &&
@@ -224,17 +227,19 @@ const Post = ({ item }) => {
                   <FaRegHeart size={21} title="Like" />
                 </button>
               )}
-              <FaRegComment size={21} title="Comment" />
+              <button onClick={focusInput}>
+                <FaRegComment size={21} title="Comment" />
+              </button>
             </div>
             <button>
               <PiPaperPlaneTiltBold size={21} title="Share" />
             </button>
           </div>
-          <div className="flex gap-1 text-[13px] px-1 font-semibold">
+          <div className="flex gap-1 text-[13px] px-3 font-semibold">
             <p>{post.likes.length}</p>
             <h4> likes</h4>
           </div>
-          <div className="flex gap-1 text-[13px] px-1 py-[2px]">
+          <div className="flex gap-1 text-[13px] px-3 py-[2px]">
             <p>
               <strong className="font-semibold">{post.user.username}</strong>
               &nbsp;&nbsp;
@@ -243,7 +248,7 @@ const Post = ({ item }) => {
           </div>
           {post.comments.length > 0 && (
             <>
-              <div className="text-[13px] px-1">
+              <div className="text-[13px] px-3">
                 {showComments ? (
                   <button onClick={() => setShowComments(!showComments)}>
                     Hide comments
@@ -262,6 +267,7 @@ const Post = ({ item }) => {
                         commentId={comment._id}
                         key={index}
                         handleDeleteComment={handleDeleteComment}
+                        logInUser={logInUser}
                       />
                     );
                   })}
@@ -269,12 +275,13 @@ const Post = ({ item }) => {
               )}
             </>
           )}
-          <div className="flex mt-1">
+          <div className="flex mt-1 px-3">
             <input
+              ref={inputRef}
               type="text"
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
-              className="outline-none px-1 text-[13px] w-full"
+              className="outline-none text-[13px] w-full"
               placeholder="Add a comment..."
             />
             {commentText && (

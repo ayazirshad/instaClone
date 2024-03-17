@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Post from "../post/Post";
 
-const ScrollPosts = () => {
+const ScrollPosts = ({ logInUser }) => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
@@ -21,7 +21,7 @@ const ScrollPosts = () => {
       {posts.length > 0 ? (
         <div>
           {posts.map((item, index) => {
-            return <Post item={item} key={index} />;
+            return <Post item={item} key={index} logInUser={logInUser} />;
           })}
         </div>
       ) : (

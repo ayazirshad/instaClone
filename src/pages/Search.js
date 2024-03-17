@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const Search = () => {
-  const logInUserId = "65c44c79ac67152520d0897b";
-  const [loggedInUser, setLoggedInUser] = useState({});
+const Search = ({ logInUser }) => {
+  console.log("logInUser", logInUser);
+  // const logInUserId = logInUser._id;
+  const [loggedInUser, setLoggedInUser] = useState(logInUser);
   const [users, setUsers] = useState([]);
   const [fetchedUsers, setFetchedUsers] = useState([]);
   const [userPresent, setUserPresent] = useState(false);
@@ -11,18 +12,18 @@ const Search = () => {
   const [userChanged, setUserChanged] = useState({});
 
   useEffect(() => {
-    const fetchLogInUser = async () => {
-      const res = await fetch(`/user/${logInUserId}/userId`);
-      const data = await res.json();
-      setLoggedInUser(data);
-    };
+    // const fetchLogInUser = async () => {
+    //   const res = await fetch(`/user/${logInUserId}/userId`);
+    //   const data = await res.json();
+    //   setLoggedInUser(data);
+    // };
     const fetchUsers = async () => {
       const res = await fetch("/user");
       const data = await res.json();
       // console.log(data);
       setFetchedUsers(data);
     };
-    fetchLogInUser();
+    // fetchLogInUser();
     fetchUsers();
   }, []);
 

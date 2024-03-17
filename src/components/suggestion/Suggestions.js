@@ -1,33 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const Suggestions = () => {
-  const userName = "ali";
+const Suggestions = ({ logInUser }) => {
+  console.log("logInUser suggestion", logInUser);
+  const userName = logInUser?.username;
   const [users, setUsers] = useState([]);
-  const loggedInUser = "65c44c79ac67152520d0897b";
+  // const loggedInUser = "65c44c79ac67152520d0897b";
   // const [loggedInUser, setLoggedInUser] = useState();
   const [followed, setFollowed] = useState(false);
   const [suggestedUser, setSuggestedUser] = useState();
 
   useEffect(() => {
-    const fetchData = async () => {
-      // const response = await fetch({`/user/${userName}/suggestions`},)
-      const response = await fetch(`/user/${userName}/suggestions`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await response.json();
-      //   console.log("suggestedUsers", data.suggestedUsers);
-      setUsers(data.suggestedUsers);
-    };
-    fetchData();
-  }, []);
+    if (logInUser) {
+      const fetchData = async () => {
+        // const response = await fetch({`/user/${userName}/suggestions`},)
+        const response = await fetch(`/user/${userName}/suggestions`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await response.json();
+        //   console.log("suggestedUsers", data.suggestedUsers);
+        setUsers(data.suggestedUsers);
+      };
+      fetchData();
+    }
+  }, [logInUser, userName]);
 
   const handleFollow = async (user) => {
     // console.log("user", user);
-    const response = await fetch(`/user/${loggedInUser}/follow`, {
+    const response = await fetch(`/user/${logInUser._id}/follow`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -46,7 +49,7 @@ const Suggestions = () => {
 
   const handleUnfollow = async (user) => {
     // console.log("user", user);
-    const response = await fetch(`/user/${loggedInUser}/unfollow`, {
+    const response = await fetch(`/user/${logInUser._id}/unfollow`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

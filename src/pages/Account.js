@@ -1,24 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { BsGrid } from "react-icons/bs";
+import { RiMessengerLine } from "react-icons/ri";
 import { RxCross2 } from "react-icons/rx";
 // import { RxCross2 } from "react-icons/rx";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-const Account = () => {
+const Account = ({ logInUser }) => {
   const navigate = useNavigate();
   // const logInUser = {
   //   username: "ali",
   //   _id: "65c44c79ac67152520d0897b",
   // };
-  const logInUserId = "65c44c79ac67152520d0897b";
-  const [loggedInUser, setLoggedInUser] = useState({});
+  // const logInUserId = "65c44c79ac67152520d0897b";
+  const [loggedInUser, setLoggedInUser] = useState(logInUser);
   // const userId = loggedInUser._id;
   const params = useParams();
   const [userName, setUserName] = useState(params.userName);
   // console.log("userName", userName);
   const [user, setUser] = useState();
   // console.log("user", user);
-  const [followed, setFollowed] = useState();
+  // const [followed, setFollowed] = useState();
   const [isFollowersPageOpen, setIsFollowersPageOpen] = useState(false);
   const [isFollowingPageOpen, setIsFollowingPageOpen] = useState(false);
   // loggedInUser &&
@@ -29,36 +30,40 @@ const Account = () => {
   // console.log("posts", posts);
 
   useEffect(() => {
-    if (userName === loggedInUser?.username) {
-      navigate("/profile");
+    if (loggedInUser) {
+      if (userName === loggedInUser?.username) {
+        navigate("/profile");
+      }
+      const fetchData = async () => {
+        const response = await fetch(`/user/${userName}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await response.json();
+        // console.log("data", data);
+        setUser(data);
+        setPosts(data.posts);
+      };
+      fetchData();
     }
-    const fetchData = async () => {
-      const response = await fetch(`/user/${userName}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await response.json();
-      // console.log("data", data);
-      setUser(data);
-      setPosts(data.posts);
-    };
+
     // console.log("use effect running");
 
-    const fetchLogInUser = async () => {
-      const response = await fetch(`/user/${logInUserId}/userId`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await response.json();
-      //   console.log("data", data);
-      setLoggedInUser(data);
-    };
-    fetchData();
-    fetchLogInUser();
+    // const fetchLogInUser = async () => {
+    //   const response = await fetch(`/user/${logInUserId}/userId`, {
+    //     method: "GET",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //   });
+    //   const data = await response.json();
+    //   //   console.log("data", data);
+    //   setLoggedInUser(data);
+    // };
+
+    // fetchLogInUser();
   }, [userName, navigate, loggedInUser]);
 
   const handleFollow = async (item) => {
@@ -89,7 +94,7 @@ const Account = () => {
       }
 
       setLoggedInUser(data.followingUser);
-      setFollowed(true);
+      // setFollowed(true);
     }
   };
 
@@ -123,21 +128,21 @@ const Account = () => {
         setUser(data.unFollowedUser);
       }
       setLoggedInUser(data.unFollowingUser);
-      setFollowed(false);
+      // setFollowed(false);
     }
   };
 
   return (
-    <div className="relative flex items-center flex-col w-full">
+    <div className="relative flex items-center flex-col w-full mb-20">
       {user ? (
         <>
-          <div className="flex h-64 ">
-            <div className=" w-64 h-full flex justify-center items-center">
+          <div className="flex sm:h-64 py-10 gap-3">
+            <div className=" sm:w-64 h-full flex justify-center items-center">
               <div className="rounded-full overflow-hidden border">
                 <img
                   src={user.profilePicture}
                   alt="img"
-                  className="w-36 h-36"
+                  className="h-20 w-20 sm:w-36 sm:h-36"
                 />
               </div>
             </div>
@@ -145,8 +150,7 @@ const Account = () => {
               <div className="flex justify-between py-3">
                 <h1 className="text-lg font-semibold mr-2">{user.username}</h1>
                 <div className="flex gap-2">
-                  {followed ||
-                  loggedInUser?.following?.some(
+                  {loggedInUser?.following?.some(
                     (item) => item._id === user._id
                   ) ? (
                     <button
@@ -168,16 +172,16 @@ const Account = () => {
                     className="bg-gray-100 hover:bg-gray-200 font-semibold text-xs rounded-md py-[6px] px-3"
                     to={"/messenger"}
                   >
-                    Message
+                    <RiMessengerLine size={20} />
                   </Link>
                 </div>
               </div>
               <div className="flex gap-8 ">
-                <div className="flex gap-1 items-center">
+                <div className="sm:flex gap-1 items-center text-center">
                   <p className="font-semibold">{user.posts.length}</p>
                   <span className="text-sm">posts</span>
                 </div>
-                <div className="flex gap-1 items-center">
+                <div className="sm:flex gap-1 items-center text-center">
                   <p className="font-semibold">{user.followers.length}</p>
                   <button
                     className="text-sm"
@@ -186,7 +190,7 @@ const Account = () => {
                     followers
                   </button>
                 </div>
-                <div className="flex gap-1 items-center">
+                <div className="sm:flex gap-1 items-center text-center">
                   <p className="font-semibold">{user.following.length}</p>
                   <button
                     className="text-sm"
@@ -205,19 +209,25 @@ const Account = () => {
               <BsGrid size={14} />
               <p>posts</p>
             </div>
-            <div className="grid grid-cols-3 gap-1">
+            <div
+              className={`${
+                posts.length > 0
+                  ? "grid grid-cols-3 gap-[2px]"
+                  : "w-full flex justify-center items-center"
+              } `}
+            >
               {posts ? (
                 posts.map((item, index) => {
                   return (
                     <Link
-                      className="cursor-pointer overflow-hidden"
+                      className="cursor-pointer overflow-hidden aspect-square sm:w-60 sm:h-60 "
                       key={index}
                       to={`/post/${item._id}`}
                     >
                       <img
                         src={item.image}
                         alt="img"
-                        className="w-60 h-60 hover:scale-105 transition-all duration-300"
+                        className="w-full h-full hover:scale-105 transition-all duration-300"
                       />
                     </Link>
                   );

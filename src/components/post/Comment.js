@@ -2,30 +2,32 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { MdDeleteOutline } from "react-icons/md";
 
-const Comment = ({ commentId, handleDeleteComment }) => {
-  const logInUserId = "65c44c79ac67152520d0897b";
+const Comment = ({ commentId, handleDeleteComment, logInUser }) => {
+  const logInUserId = logInUser._id;
   // console.log("comment id", commentId);
   const [comment, setComment] = useState();
 
   useEffect(() => {
-    const fetchComment = async () => {
-      const res = await fetch(`/comment/${commentId}/commentId`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await res.json();
-      // console.log("comment", data);
-      setComment(data);
-    };
-    fetchComment();
-  }, []);
+    if (commentId) {
+      const fetchComment = async () => {
+        const res = await fetch(`/comment/${commentId}/commentId`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await res.json();
+        // console.log("comment", data);
+        setComment(data);
+      };
+      fetchComment();
+    }
+  }, [commentId]);
 
   return (
     <div>
       {comment ? (
-        <div className="flex gap-2 text-sm w-[430px] p-1">
+        <div className="flex gap-2 text-sm sm:w-[430px] px-3">
           <div className="w-8 h-8 object-contain rounded-full overflow-hidden border">
             <img src={comment.user?.profilePicture} alt="img" />
           </div>

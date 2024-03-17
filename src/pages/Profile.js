@@ -4,14 +4,14 @@ import { RxCross2 } from "react-icons/rx";
 import { Link } from "react-router-dom";
 import Post from "../components/post/Post";
 
-const Profile = () => {
+const Profile = ({ logInUser }) => {
   const [posts, setPosts] = useState([]);
   const [isFollowersPageOpen, setIsFollowersPageOpen] = useState(false);
   const [isFollowingPageOpen, setIsFollowingPageOpen] = useState(false);
   const [removed, setRemoved] = useState(false);
   const [followedUser, setFollowedUser] = useState();
   const [unfollowedUser, setUnfollowedUser] = useState();
-  const loggedInUser = "65c44c79ac67152520d0897b";
+  const loggedInUser = logInUser._id;
 
   // console.log("posts", posts);
   const userName = "ali";
@@ -30,7 +30,7 @@ const Profile = () => {
     };
 
     const fetchPosts = async () => {
-      const response = await fetch("/post/65c44c79ac67152520d0897b", {
+      const response = await fetch(`/post/${loggedInUser}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -38,7 +38,7 @@ const Profile = () => {
       });
       const data = await response.json();
       //   console.log("data", data);
-      setPosts(data.posts);
+      setPosts(data.posts.reverse());
     };
     fetchData();
     fetchPosts();
@@ -106,13 +106,13 @@ const Profile = () => {
     <div className="flex items-center flex-col w-full relative pb-20">
       {user ? (
         <>
-          <div className="flex h-64 ">
-            <div className=" w-64 h-full flex justify-center items-center">
+          <div className="flex sm:h-64 py-10 gap-3">
+            <div className=" sm:w-64 h-full flex justify-center items-center">
               <div className="rounded-full overflow-hidden ">
                 <img
                   src={user.profilePicture}
                   alt="img"
-                  className="w-36 h-36"
+                  className="h-20 w-20 sm:w-36 sm:h-36"
                 />
               </div>
             </div>
@@ -127,11 +127,11 @@ const Profile = () => {
                 </Link>
               </div>
               <div className="flex gap-8 ">
-                <div className="flex gap-1 items-center">
+                <div className="sm:flex gap-1 items-center text-center">
                   <p className="font-semibold">{user.posts.length}</p>
                   <span className="text-sm">posts</span>
                 </div>
-                <div className="flex gap-1 items-center">
+                <div className="sm:flex gap-1 items-center text-center">
                   <p className="font-semibold">{user.followers.length}</p>
                   <button
                     className="text-sm"
@@ -140,7 +140,7 @@ const Profile = () => {
                     followers
                   </button>
                 </div>
-                <div className="flex gap-1 items-center">
+                <div className="sm:flex gap-1 items-center text-center">
                   <p className="font-semibold">{user.following.length}</p>
                   <button
                     className="text-sm"
@@ -159,26 +159,32 @@ const Profile = () => {
               <BsGrid size={14} />
               <p>posts</p>
             </div>
-            <div className="grid grid-cols-3 gap-1">
+            <div
+              className={`${
+                posts.length > 0
+                  ? "grid grid-cols-3 gap-[2px]"
+                  : "w-full flex justify-center items-center"
+              } `}
+            >
               {posts.length > 0 ? (
                 posts.map((item, index) => {
                   return (
                     <Link
-                      className="cursor-pointer overflow-hidden"
+                      className="cursor-pointer overflow-hidden aspect-square sm:w-60 sm:h-60 "
                       key={index}
                       to={`/post/${item._id}`}
                     >
                       <img
                         src={item.image}
                         alt="img"
-                        className="w-60 h-60 hover:scale-105 transition-all duration-300"
+                        className="w-full h-full hover:scale-105 transition-all duration-300"
                       />
                     </Link>
                   );
                 })
               ) : (
-                <div className="w-full h-screen flex justify-center items-center">
-                  loading...
+                <div className="w-full  h-screen flex justify-center items-center">
+                  no posts
                 </div>
               )}
             </div>
